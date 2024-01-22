@@ -3,7 +3,7 @@ import { Card } from "antd";
 import Meta from "antd/es/card/Meta";
 import StarButton from "./StartBoton";
 import { useDispatch } from "react-redux";
-import { setFavorite } from "../Actions";
+import { setFavorite } from "../slices/dataSlice";
 
 const PokemonCard = ({ name, image, types, id, favorite }) => {
   const dispatch = useDispatch();
