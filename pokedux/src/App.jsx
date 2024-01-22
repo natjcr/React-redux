@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useEffect } from 'react';
+import Searcher from './Components/Searcher'
+import { Col, Spin } from "antd";
+import { getPokemon } from './Api/Api';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { getPokemonsWithDetails, setLoading } from './Actions';
+import PokemonList from './Components/Pokemonlist';
+import logo from './statics/logo.svg';
 import './App.css'
 
+//=== comparación extricta 
+//1 === 1 => true
+//1 === '1' => false
+
 function App() {
-  const [count, setCount] = useState(0)
+  const pokemons = useSelector((state) => state.getIn(['data', 'pokemons'], shallowEqual)).toJs();
+  const loading = useSelector((state) => state.getIn(['ui', 'loading']));
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchPokemons = async () => {
+      dispatch(setLoading(true));
+      const pokemonsRes = await getPokemon();
+      dispatch(getPokemonsWithDetails(pokemonsRes));
+      dispatch(setLoading(false));
+    };
+
+    fetchPokemons();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className='App'>
+      <Col span={4} offset={10}>
+        <img src={logo} alt='Pokedux' />
+      </Col>
+      <Col span={8} offset={8}>
+        <Searcher />
+      </Col>
+      {loading ? (
+        <Col offset={12}>
+          <Spin spinning size='large' />
+        </Col>
+      ) : (
+        <PokemonList pokemons={pokemons} />
+      )}
+    </div>
+  );
 }
 
-export default App
+
+
+export default App;
